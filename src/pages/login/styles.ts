@@ -1,7 +1,7 @@
 import { Dimensions, StyleSheet } from "react-native";
 import { themes } from "../../global/themes";
 
-export const styles = StyleSheet.create({
+export const style = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
@@ -39,28 +39,8 @@ export const styles = StyleSheet.create({
         marginTop: 40,
         fontSize: 18
     },
-    titleInput:{
-        marginLeft: 5,
-        color: themes.colors.gray,
-        marginTop: 20
-    },
-    BoxInput:{
-        width: '100%',
-        height: 40,
-        borderWidth: 1,
-        borderRadius: 40,
-        marginTop: 10,
-        flexDirection: "row",
-        paddingLeft: 15,
-        alignItems: "center",
-        backgroundColor: themes.colors.lightray,
-        borderColor: themes.colors.lightray
-    },
-    Input:{
-        width: "90%",
-        borderRadius: 40,
-    },
-    Button:{
+
+    button:{
         width: 200,
         height: 40,
         alignItems: "center",
