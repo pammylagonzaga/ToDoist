@@ -1,27 +1,21 @@
 import React, { useState } from "react";
 
-import { 
-    Text,
-    View,
-    Image,
-    TextInput,
-    TouchableOpacity,
-    Alert,
-    ActivityIndicator
- } from "react-native";
-
+import { Text, View, Image, TextInput, TouchableOpacity, Alert, ActivityIndicator } from "react-native";
 import { style } from "./styles";
 import Logo from '../../assects/logo.png';
-import { MaterialIcons } from '@react-native-vector-icons/material-icons';
 import { themes } from "../../global/themes";
 import { Input } from "../../components/Input";
-import { Octicons } from "@expo/vector-icons";
+import { Octicons, MaterialIcons } from "@expo/vector-icons";
 import { Button } from "../../components/Button";
- 
+import {useNavigation, NavigationProp} from '@react-navigation/native'
+import Routes from "../../routes/index.routes";
+
 export default function Login() {
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const navigation = useNavigation<NavigationProp<any>>();
+
+  const [email, setEmail] = useState('a');
+  const [password, setPassword] = useState('a');
   const [showPassWord, setShowpassword] = useState(true);
   const [loading, setLoading] = useState(false);
 
@@ -33,12 +27,13 @@ export default function Login() {
         return Alert.alert('Atenção 2', 'Informe todos os campos');
       }
 
-      console.log("LOGOU!")
-          
+      navigation.reset({routes:[{name:"BottomRoutes"}]})
+
     } catch (error) {
       console.log(error);
+    }finally{
+      setLoading(false);
     }
-    setLoading(false);
   }
 
   return (
