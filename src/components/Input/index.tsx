@@ -1,6 +1,6 @@
 import React, { forwardRef, LegacyRef } from "react";
 
-import {View, Text, TextInput, TextInputProps, TouchableOpacity} from 'react-native';
+import {View, Text, TextInput, TextInputProps, TouchableOpacity, StyleProp, TextStyle} from 'react-native';
 import { style } from "./styles";
 import { FontAwesome, MaterialIcons, Octicons } from "@expo/vector-icons";
 import { themes } from "../../global/themes";
@@ -19,12 +19,14 @@ type Props = TextInputProps & {
     iconRightName?: string,
     title?: string,
     onIconLeftPress?: () => void,
-    onIconRightPress?: () => void
+    onIconRightPress?: () => void,
+    height?:number,
+    labelStyle?:StyleProp<TextStyle>
 }
 
 export const Input = forwardRef((Props:Props,ref: LegacyRef<TextInput> | null)=>{
 
-    const {IconLeft, IconRight, iconLeftName, iconRightName, title, onIconLeftPress, onIconRightPress, ...rest} = Props
+    const {IconLeft, IconRight, iconLeftName, iconRightName, title, onIconLeftPress, onIconRightPress,labelStyle, height, ...rest} = Props
 
     const calculateSizeWidth = () =>{
         if(IconLeft && IconRight){
@@ -49,8 +51,8 @@ export const Input = forwardRef((Props:Props,ref: LegacyRef<TextInput> | null)=>
     // usa-se "[]" dentro do style para dizer que é um array de estylos, multiplos estilos
     return (        
         <>
-            {title&&<Text style={style.titleInput}>{title}</Text>}
-            <View style={[style.BoxInput,{paddingLeft:calculateSizePaddingLeft()}]}>
+            {title&&<Text style={[style.titleInput, labelStyle]}>{title}</Text>}
+            <View style={[style.BoxInput,{paddingLeft:calculateSizePaddingLeft(), height:height||40}]}>
                 {IconLeft && iconLeftName &&(
                 <TouchableOpacity onPress={onIconLeftPress} style={style.Button}>
                     <IconLeft name={iconLeftName as any} size={20} color={themes.colors.gray} style={style.Icon} />
@@ -58,7 +60,7 @@ export const Input = forwardRef((Props:Props,ref: LegacyRef<TextInput> | null)=>
                 )}
                  <TextInput 
                     style={[
-                        style.Input,{width:calculateSizeWidth()}
+                        style.Input,{width:calculateSizeWidth(), height:'100%'}
                     ]}
                     {...rest}
 

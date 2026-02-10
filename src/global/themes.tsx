@@ -4,7 +4,9 @@ export const themes = {
         secondary: "#ffffff",
         lightray: "#d7d8d7",
         gray: "gray",
-        bgScreen: "#f1f7fa"
+        bgScreen: "#f1f7fa",
+        red:"#FF494C",
+        blueLight:"#87CEF6"
     }
 };
 
