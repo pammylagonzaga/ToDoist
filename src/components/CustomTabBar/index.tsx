@@ -1,12 +1,15 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Text, Touchable, TouchableOpacity, View} from 'react-native'
 import { style } from "./styles";
 import { AntDesign, Entypo, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { themes } from "../../global/themes";
+import { AuthContextList } from "../../context/authContext_list";
 
 // neste export não tinha ":any" mas essa foi uma solucao para continuar o projeto
 // neste caminho estamos adicionando os botões no rodapé
 export default ({state,navigation}:any)=>{
+
+    const {onOpen} = useContext<any>(AuthContextList)
 
     const go = (screenName:string)=> {
             navigation.navigate(screenName)
@@ -20,7 +23,7 @@ export default ({state,navigation}:any)=>{
                     style={{opacity:state.index === 0?1:0.2, color:themes.colors.primary, fontSize:32}}
                 />
             </TouchableOpacity>
-            <TouchableOpacity style={style.tabItemButton}>
+            <TouchableOpacity style={style.tabItemButton} onPress={()=> onOpen()}>
                 <View style={{width:'100%', left:10, top:4}}>
                     <Entypo
                     name="plus"
