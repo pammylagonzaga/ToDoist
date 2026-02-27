@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, use, useContext, useEffect, useRef, useState } from "react";
 import { Alert, Dimensions, Text, View, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
 import { Modalize } from "react-native-modalize";
 import { style } from "../pages/login/styles";
@@ -7,6 +7,7 @@ import { Input } from "../components/Input";
 import { themes } from "../global/themes";
 import { Flag } from "../components/Flag";
 import CustomDateTimePicker from "../components/CustomDateTimePicker";
+import AsyncStorage from "@react-native-async-storage/async-storage";   
 
 export const AuthContextList:any = createContext({});
 
@@ -15,7 +16,7 @@ const flags = [
     {caption: 'opcional', color:themes.colors.blueLight}
 ]
 
-export const AuthProviderList = (props:any):any => {
+export const AuthProviderList = (props:any) => {
     const modalizeRef = useRef<Modalize>(null);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
@@ -24,6 +25,8 @@ export const AuthProviderList = (props:any):any => {
     const [selectedTime, setSelectedTime] = useState(new Date()); 
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [showTimePicker, setShowTimePicker] = useState(false);
+    const [item, setItem] = useState(0);
+    const [taskList, setTaskList] = useState([]);
 
     const onOpen = ()=>{
         modalizeRef?.current?.open()
@@ -33,14 +36,22 @@ export const AuthProviderList = (props:any):any => {
         modalizeRef?.current?.close()
     }
 
+    useEffect(()=>{
+        get_taskList();
+    },[])
+
     const _renderFlag  =() => {
         return (
             flags.map((item,index) => (
-                <TouchableOpacity key={index}>
+                <TouchableOpacity key={index}
+                onPress={()=>{
+                    setSelectedFlag(item.caption)
+                }}
+                >
                     <Flag 
                         caption={item.caption}
                         color={item.color}
-                       // selected
+                       selected={item.caption === selectedFlag}
                     />
                 </TouchableOpacity>
             ))
@@ -49,11 +60,67 @@ export const AuthProviderList = (props:any):any => {
 
     const handleDateChange = (date: Date) => {
     setSelectedDate(date);
-  }
+  };
 
     const handleTimeChange = (time: Date) => {
     setSelectedTime(time);
-  }
+  };
+
+  
+  const handlerSave = async () => {
+    if (!title || !description || !selectedFlag ) {
+      return Alert.alert("Erro", "Por favor, preencha todos os campos.");
+    }
+         try {
+                const newItem = {
+                    item: Date.now(),
+                    title,
+                    description,
+                    flag: selectedFlag,
+                    timeLimit: new Date(
+                        selectedDate.getFullYear(),
+                        selectedDate.getMonth(),
+                        selectedDate.getDate(),
+                        selectedTime.getHours(),
+                        selectedTime.getMinutes()
+                    ), toString
+                }
+
+                const storangeData = await AsyncStorage.getItem('taskList');
+
+                let taskList = storangeData ? JSON.parse(storangeData) : [];
+
+                taskList.push(newItem);
+                await AsyncStorage.setItem('taskList', JSON.stringify(taskList))
+
+                setTaskList(taskList)
+                setData()
+                onClose()
+
+        } catch (error) {
+            console.log("Erro ao salvar item:", error);
+        }
+      }
+
+    const setData = () => {
+        setTitle('');
+        setDescription('');
+        setSelectedFlag('urgente');
+        setItem(0);
+        setSelectedDate(new Date());
+        setSelectedTime(new Date());
+    }
+
+    async function get_taskList() {
+        try {
+            const storangeData = await AsyncStorage.getItem('taskList');
+            const taskList = storangeData ? JSON.parse(storangeData) : [];
+            setTaskList(taskList);
+        } catch (error) {
+            console.log("Erro ao carregar a lista de tarefas:", error);
+        }
+        
+    }
 
     const _container = () =>{
         return (
@@ -70,7 +137,7 @@ export const AuthProviderList = (props:any):any => {
                             />
                         </TouchableOpacity>
                         <Text style={styles.title}>Criar Tarefa</Text>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={()=>handlerSave()}>
                             <AntDesign 
                                 name="check"
                                 size={30}
@@ -143,7 +210,7 @@ export const AuthProviderList = (props:any):any => {
     }
 
     return (
-        <AuthContextList.Provider value= {{onOpen}}>
+        <AuthContextList.Provider value= {{onOpen,taskList}}>
             {props.children}
             <Modalize 
             ref={modalizeRef}

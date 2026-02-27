@@ -1,60 +1,56 @@
-import React from "react";
+import React, { useContext, useRef } from "react";
 
 import {FlatList, Text, TouchableOpacity, View} from 'react-native'
 import { style } from "./styles";
 import { Input } from "../../components/Input";
-import { MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, MaterialIcons } from "@expo/vector-icons";
 import { Ball } from "../../components/Ball";
 import { Flag } from "../../components/Flag";
 import { themes } from "../../global/themes";
-
-type PropCard = {
-    item:number,
-    title:string,
-    description:string,
-    flag: 'urgente' | 'opcional'
-}
-
-const data:Array <PropCard>= 
-[
-    {
-        item:0,
-        title: 'Realizar a lição de casa Facul!',
-        description: 'pagina 10 a 20',
-        flag: 'urgente'
-    },
-    {
-        item:1,
-        title: 'Fazer almoço',
-        description: '2 receitas',
-        flag: 'urgente'
-    },
-    {
-        item:2,
-        title: 'Sair para comprar itens',
-        description: 'pagina 10 a 20',
-        flag: 'urgente'
-    }
-]
+import { AuthContextList } from "../../context/authContext_list";
+import { AuthContextType, PropCard } from "../../global/Props";
+import { formatDateToBR } from "../../global/functions";
+import { Swipeable } from "react-native-gesture-handler";
 
 export default function List(){
+    const {taskList} = useContext<AuthContextType>(AuthContextList)
+    const swipeableRefs = useRef<any[]>([]);
+    //nao tinha esse useRef, ai quando eu abria um card e depois abria outro, o primeiro nao fechava, ai com esse useRef eu consigo fechar o card anterior quando abrir outro
+    const renderRightActions = () => {
+        return(<View style={style.button}>
+            <AntDesign 
+            name="delete" 
+            size={24} 
+            color={'white'} />
+        </View>)
+    }
 
-    const _renderCard = (item:PropCard)=>{
+    const _renderCard = (item:PropCard, index:any)=>{
+        const color = item.flag == 'opcional' ? themes.colors.blueLight : themes.colors.red
         return(
-            <TouchableOpacity style={style.card}>
+            <Swipeable
+                ref={(ref) => { swipeableRefs.current[index] = ref; }}
+                key={index}
+                renderRightActions={renderRightActions}
+            >
+            <View style={style.card}>
                 <View style={style.rowCard}>
                     <View style={style.rowCardLeft}>
-                        <Ball color="red"/>
+                        <Ball color={color}/>
                         <View>
                             <Text style={style.titleCard}>{item.title}</Text>
                             <Text style={style.descriptionCard}>{item.description}</Text>
+                            <Text style={style.descriptionCard}> até {formatDateToBR(item.timeLimit)}</Text>
                         </View>
                     </View>
                         <View>
-                        <Flag caption="Urgente" color= {themes.colors.red}/>
+                        <Flag 
+                        caption={item.flag} 
+                        color= {color}/>
                         </View>
                 </View>
-            </TouchableOpacity>
+            </View>
+            </Swipeable>
         )
     }
 
@@ -71,10 +67,10 @@ export default function List(){
         </View>
         <View style={style.boxList}>
             <FlatList
-                data={data}
+                data={taskList}
                 style={{marginTop:40, paddingHorizontal:30}}
                 keyExtractor={(item,index)=> item.item.toString()}
-                renderItem={({item,index})=> {return (_renderCard(item))}
+                renderItem={({item,index})=> {return (_renderCard(item, index))}
                 }
             />
         </View>
